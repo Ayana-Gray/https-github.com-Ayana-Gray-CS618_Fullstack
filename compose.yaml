@@ -1,6 +1,11 @@
 services:
   blog-database:
     image: mongo
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping")']
+      interval: 5s
+      timeout: 5s
+      retries: 10
     ports:
       - '27017:27017'
 
@@ -14,7 +19,8 @@ services:
     ports:
       - '3001:3001'
     depends_on:
-      - blog-database
+      blog-database:
+        condition: service_healthy
 
   blog-frontend:
     build: .
